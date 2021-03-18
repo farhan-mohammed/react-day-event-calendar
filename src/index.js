@@ -23,15 +23,12 @@ export default class Calendar extends Component {
         start = start || 0;
         end = end || 720;
         step = step || 30;
-        console.log(start, end, step);
-        console.log((end - start) / step);
         let times = [...Array(Number((end - start) / 30) + 1)].map(
             (el, ind) => ind * step + start
         );
-        console.log(times);
         return (
             <div>
-                <p>Day Events Ver 2.0</p>
+                <p>Day Events </p>
                 <ol>
                     {times.map((i) => {
                         let hour = Math.floor(i / step / 2);
@@ -59,7 +56,7 @@ export default class Calendar extends Component {
                             return (
                                 <div
                                     class="day-event"
-                                    id={id}
+                                    key={id}
                                     style={{ top, left, width, height }}
                                 >
                                     <div className="evt-txt">EventID: {id}</div>
