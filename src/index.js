@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import DummyData from "./DummyData";
-import "./styles.css";
-import GenerateDayEvents from "./GenerateDayEvents";
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import DummyData from './DummyData';
+import './styles.scss';
+import GenerateDayEvents from './GenerateDayEvents';
 export default class Calendar extends Component {
     props = {
         start: 0,
@@ -14,62 +14,83 @@ export default class Calendar extends Component {
         events: [],
     };
     componentDidMount() {
-        // Sort our Events
-        this.setState({ events: new GenerateDayEvents(DummyData) });
-        //  Figure out the number of columns
+        this.setState({
+            events: new GenerateDayEvents(
+                DummyData,
+                document.getElementById('day-event-container').clientWidth,
+            ),
+        });
     }
     render() {
+        const START_TIME = 120 * 0;
         let { start, end, step } = this.props;
-        start = start || 0;
-        end = end || 720;
-        step = step || 30;
-        let times = [...Array(Number((end - start) / 30) + 1)].map(
-            (el, ind) => ind * step + start
+        start = start || START_TIME;
+        end = end || 720 * 4;
+        step = step || 120;
+        let times = [...Array(Math.floor((end - start) / step))].map(
+            (el, ind) => ind * step + start,
         );
+        let emptyBlocks = [...Array(Math.floor((end - start) / step))];
         return (
-            <div>
-                <p>Day Events </p>
-                <ol>
-                    {times.map((i) => {
-                        let hour = Math.floor(i / step / 2);
-                        return (
-                            <li>
-                                <span className="hours">
-                                    {hour < 10 ? `0${hour}` : hour}:{i % step}
-                                </span>
-                                {i < 720 ? "AM" : "PM"}
-                            </li>
-                        );
-                    })}
-                </ol>
-                <div id="day-event-container" class="day-event-container">
-                    {this.state.events.map(
-                        ({
-                            id,
-                            top,
-                            left,
-                            width,
-                            height,
-                            start: s,
-                            end: e,
-                        }) => {
+            <div className="cal-con">
+                <div class="cal-title">Day Events</div>
+                <div className="cal-body">
+                    <ol className="cal-body__times">
+                        {times.map((i) => {
+                            let hour = Math.floor(i / step);
                             return (
-                                <div
-                                    class="day-event"
-                                    key={id}
-                                    style={{ top, left, width, height }}
-                                >
-                                    <div className="evt-txt">EventID: {id}</div>
-                                    <span class="evt-txt">
-                                        Interval:{s},{e}
+                                <li style={{ marginBottom: step - 14 }}>
+                                    <span className="hours">
+                                        {hour < 10 ? `0${hour}` : hour}:00
                                     </span>
-                                </div>
+                                    {i < 720 * 2 ? 'AM' : 'PM'}
+                                </li>
                             );
-                        }
-                    )}
+                        })}
+                    </ol>
+                    <div className="cal-body__events" style={{ height: end - START_TIME }}>
+                        <div className="events-bg">
+                            {emptyBlocks.map(() => (
+                                <div
+                                    className="events-bg__divider"
+                                    style={{ maxHeight: step }}
+                                ></div>
+                            ))}
+                        </div>
+                        <div className="events-con" id="day-event-container">
+                            {this.state.events
+                                .filter(({ start }) => start >= START_TIME)
+                                .map(
+                                    ({
+                                        top,
+                                        left,
+                                        width,
+                                        height,
+                                        start: s,
+                                        end: e,
+                                        title = 'Title not found',
+                                    }) => {
+                                        return (
+                                            <div
+                                                class="day-event"
+                                                key={title}
+                                                style={{
+                                                    top: top - START_TIME,
+                                                    left,
+                                                    width,
+                                                    height,
+                                                }}
+                                            >
+                                                <span class="evt-txt">{title}</span>
+                                            </div>
+                                        );
+                                    },
+                                )}
+                        </div>
+                    </div>
                 </div>
             </div>
         );
     }
 }
-ReactDOM.render(<Calendar />, document.getElementById("root"));
+ReactDOM.render(<Calendar />, document.getElementById('root'));
